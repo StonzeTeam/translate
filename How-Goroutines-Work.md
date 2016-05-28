@@ -1,4 +1,4 @@
-원 링크: http://blog.nindalf.com/how-goroutines-work/
+출처: http://blog.nindalf.com/how-goroutines-work/
 
 # Go를 소개합니다
 
