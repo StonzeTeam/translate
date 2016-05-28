@@ -1,6 +1,6 @@
 출처: http://blog.nindalf.com/how-goroutines-work/
 
-# Go를 소개합니다
+# 서론
 
 만약 당신이 Go언어를 배우는 것이 처음이거나 "동시성은 병렬 구조가 아니다"라는 문장이 당신에게 의미가 없다면, Rob Pike의 그 주제에 대한 [뛰어난 논의](http://www.youtube.com/watch?v=cN_DpYBzKso)를 확인해라. 이것은 30분 정도 소요될 것이고, 나는 그것을 보는 것이 30분을 유용하게 소비하는 거라는 걸 보증한다.
 
