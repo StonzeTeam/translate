@@ -10,9 +10,9 @@ Go는 우리들이 동시성 프로그램을 쓰는 것을 허용한다. 그것�
 
 # Gorountine과 Thread의 차이점
 
-Go는 Gorountine을 사용하고 자바와 같은 언어는 Thread를 사용한다. 둘 간의 차이점은 무엇인가? 우리는 3가지 요소를 볼 필요가 있다 – Memory consumption, Setup과 Teardown 그리고 Switching time.
+Go는 Gorountine을 사용하고 자바와 같은 언어는 Thread를 사용한다. 둘 간의 차이점은 무엇인가? 우리는 3가지 요소를 볼 필요가 있다 – 메모리 소비, Setup과 Teardown 그리고 Switching time.
 
-## Memory consumption
+## 메모리 소비
 
 Gorountine의 창출은 많은 메모리를 필요로 하지 않는다 - 오직 2kB의 스택 공간만. 그들은 필요한 만큼의 할당하고 자유로운 Heap storage로 인해 성장한다. 반대로 Thread는 하나의 Thread의 메모리와 다른 Thread의 메모리 간의 경비 역할을 하는 Guard page라고 불리는 메모리 지역과 함께 1Mb(500배 더)로 시작한다. 
 
