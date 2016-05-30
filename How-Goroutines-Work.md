@@ -24,27 +24,27 @@ Threads는 거대한 설치(setup)과 철거(teardown) 비용을 가진다. 왜�
 
 ## Switiching costs
 
-Thread가 차단될 때, 다른 Thread가 그 자리를 스케쥴화해야 한다. Thread들은 우선적으로 스케쥴화되고, Thread가 바뀔 동안, 스케쥴러는 모든 Register들을 save/restore해야 한다, 즉, 16개의 범용 레지스터, PC(Program Counter), SP(Stack Pointer), segment 레지스터, 16개의 XMM 레지스터, FP coprocessor state, 16개의 AVX 레지스터, 모든 MSR들 등등. 이것은 thread들 간의 급격한 전환이 있을 때 매우 중요하다.
+Thread가 Blocking될 때, 다른 Thread가 그 자리를 스케쥴화해야 한다. Thread들은 우선적으로 스케쥴화되고, Thread가 바뀔 동안, 스케쥴러는 모든 Register들을 save/restore해야 한다, 즉, 16개의 범용 레지스터, PC(Program Counter), SP(Stack Pointer), segment 레지스터, 16개의 XMM 레지스터, FP coprocessor state, 16개의 AVX 레지스터, 모든 MSR들 등등. 이것은 thread들 간의 급격한 전환이 있을 때 매우 중요하다.
 
 Gorountine은 협조적으로 스케쥴화되고 교체가 일어날 때, 오직 3개의 레지스터만이 save/restore되기 위해 필요하다 - Program Counter, Stack Pointer 그리고 DX. 비용은 훨씬 덜 든다.
 
-일찍이 논의했던 바와 같이, gorountine의 갯수는 일반적으로 훨씬 높지만, 2가지 이유에 의해 교체 시간에 차이점을 낳지 않는다. 오직 런어블(runnable) goroutine들만이 고려되고, 차단된 것들을 고려되지 않는다. 또한, 현대의 스케쥴러들은 O(1) 복잡하지 않다, 즉 교체 시간이 선택(threads 혹은 gorountines)의 수에 의해 영향을 받지 않는다는 의미이다.
+일찍이 논의했던 바와 같이, gorountine의 갯수는 일반적으로 훨씬 높지만, 2가지 이유에 의해 교체 시간에 차이점을 낳지 않는다. 오직 런어블(runnable) goroutine들만이 고려되고, Blocking된 것들을 고려되지 않는다. 또한, 현대의 스케쥴러들은 O(1) 복잡하지 않다, 즉 교체 시간이 선택(threads 혹은 gorountines)의 수에 의해 영향을 받지 않는다는 의미이다.
 
 # 어떻게 Gorountine들이 실행되는가
 
-일찍이 언급했던 바와 같이, runtime은 창조부터 teardown의 스케쥴링까지 내내 goroutine을 관리한다. runtime은 모든 goroutine들이 다중화되어 있는 조금의 thread들에 할당된다. 어느 시점에서, 각각의 thread는 하나의 goroutine을 실행할 것이다. 만약 그 goroutine이 차단되었다면, 그 thread는 자기 대신에 실행할 다른 goroutine으로 교체할 것이다.
+일찍이 언급했던 바와 같이, runtime은 창조부터 teardown의 스케쥴링까지 내내 goroutine을 관리한다. runtime은 모든 goroutine들이 다중화되어 있는 조금의 thread들에 할당된다. 어느 시점에서, 각각의 thread는 하나의 goroutine을 실행할 것이다. 만약 그 goroutine이 Blocking되었다면, 그 thread는 자기 대신에 실행할 다른 goroutine으로 교체할 것이다.
 
 goroutine들이 협조적으로 스케쥴화되기 때문에, 계속해서 고리모양을 만드는(loop하는) goroutine은 동일한 thread에서 다른 goroutine들을 굶겨 죽일 수 있다. Go 1.2에서, 이 문제는 function을 입력할 때 Go 스케쥴러가 가끔 작동함으로써 다소 완화되고, 따라서 non-inlined function 명령을 포함하는 루프(loop)는 prempt(촉발하다prompt를 잘못 쓴 건가. 이런 단어는 사전 찾아봐도 없는데)된다.
 
-# Goroutines 차단
+# Goroutines Blocking
 
-Goroutine들은 저렴하고 차단을 위해 다중화된 thread들을 야기하지 않을 것이다. 만약 그들이 이것들에 의해 차단된다면
+Goroutine들은 저렴하고 Blocking을 위해 다중화된 thread들을 야기하지 않을 것이다. 만약 그들이 이것들에 의해 Blocking된다면
 *	네트워크 입력(network input)
 *	sleeping
 *	채널 작동(channel operations) 혹은
-*	동기화 패키지의 초기 단계에서 차단하는 것. 
+*	동기화 패키지의 초기 단계에서 Blocking하는 것. 
 
-수많은 goroutine들이 만들어짐에도 불구하고, 만약 대부분의 goroutine들이 이들 중 하나에 차단당한다면 runtime이 대신에 또다른 goroutine을 스케쥴화하기 때문에 이는 시스템 resource들의 낭비가 아니다.
+수많은 goroutine들이 만들어짐에도 불구하고, 만약 대부분의 goroutine들이 이들 중 하나에 Blocking당한다면 runtime이 대신에 또다른 goroutine을 스케쥴화하기 때문에 이는 시스템 resource들의 낭비가 아니다.
 
 간단히 말해서, goroutine들은 threads보다 가벼운 관념이다. Go 프로그래머는 threads들을 다루지 않고, 유사하게 OS는 goroutines의 존재를 알지 못한다. OS의 관점에서, Go 프로그램은 이벤트 기반 C 프로그램과 같이 행동할 것이다.
 
